@@ -2,7 +2,8 @@ const { validationResult } = require("express-validator");
 const { Hospital } = require("../Models/Hospital.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { getDistance } = require("../util/getDistance.js")
+const { getDistance } = require("../util/getDistance.js");
+const { getNearestHositals } = require("../util/accidentUtils.js");
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const createHospital = async (req, res) => {
@@ -131,7 +132,7 @@ const getHospitalInfo = async (req, res) => {
 
 const getHospitals = async (req, res) => {
     try {
-        const hospitals = await Hospital.find().select("-password");
+        const hospitals = await Hospital.find({},{password:0,__v:0});
         res.json(hospitals);
     } catch (error) {
         console.error("Get Hospitals Error", error);
@@ -149,38 +150,7 @@ const getHospitalNearest = async (req, res) => {
             return res.status(400).json({ success: success });
         }
         const { latitude, longitude } = req.body;
-        const hospitals = await Hospital.find({
-            latitude: { $gte: latitude - 0.45, $lte: latitude + 0.45 },
-            longitude: { $gte: longitude - 0.45, $lte: longitude + 0.45 },
-        }).select("-password");
-
-        hospitals.sort((a, b) => {
-            const aDistance = getDistance(
-                a.latitude,
-                a.longitude,
-                latitude,
-                longitude
-            );
-            const bDistance = getDistance(
-                b.latitude,
-                b.longitude,
-                latitude,
-                longitude
-            );
-            return aDistance - bDistance;
-        });
-
-        for (let i = 0; i < hospitals.length; i++) {
-            hospitals[i] = {
-                ...hospitals[i]._doc,
-                distance: getDistance(
-                    hospitals[i].latitude,
-                    hospitals[i].longitude,
-                    latitude,
-                    longitude
-                ),
-            };
-        }
+        const hospitals = await getNearestHositals({ latitude, longitude });
 
         res.status(200).json(hospitals);
     } catch (error) {

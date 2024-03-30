@@ -12,7 +12,7 @@ const createUser = async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             console.log(errors);
-            return res.status(400).json({ authToken: "", success: success });
+            return res.status(400).json({ authToken: "", success: success,error:"Validation Error"});
         }
 
         const { name, email, password, phoneNo } = req.body;
@@ -20,7 +20,7 @@ const createUser = async (req, res) => {
         const oldUser = await User.findOne({ email: email });
 
         if (oldUser) {
-            return res.status(400).json({ success: success, authToken: "" });
+            return res.status(400).json({ success: success, authToken: "",error:"User already exists"});
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -43,9 +43,9 @@ const createUser = async (req, res) => {
 
         const authToken = jwt.sign(data, JWT_SECRET);
         success = true;
-        res.status(200).json({ success: success, authToken: authToken });
+        res.status(200).json({ success: success, authToken: authToken,error:"" });
     } catch (error) {
-        res.status(500).json({ success: false, error: error });
+        res.status(500).json({ success: false,authToken:"" ,error: error });
         console.error("Create User Error", error);
     }
 };
@@ -57,7 +57,7 @@ const loginUser = async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             console.log(errors);
-            return res.status(400).json({ authToken: "", success });
+            return res.status(400).json({ authToken: "", success:success,error:"Validation Error"});
         }
 
         const { email, password } = req.body;
@@ -65,7 +65,7 @@ const loginUser = async (req, res) => {
         let user = await User.findOne({ email });
         if (!user) {
             console.log("no user with this email");
-            return res.status(400).json({ authToken: "", success });
+            return res.status(400).json({ authToken: "", success: success,error:"No user with this email"});
         }
 
         const passwordcompare = await bcrypt.compare(password, user.password);
@@ -73,7 +73,8 @@ const loginUser = async (req, res) => {
             console.log("Try to login with correct credentials");
             return res.status(400).json({
                 error: "Try to login with correct credentials",
-                success,
+                success: success,
+                authToken: "",
             });
         }
 
@@ -84,13 +85,14 @@ const loginUser = async (req, res) => {
         };
         const authToken = jwt.sign(data, JWT_SECRET);
         success = true;
-        res.json({ authToken: authToken, success: success });
+        res.json({ authToken: authToken, success: success ,error:""});
     } catch (error) {
         let success = false;
         console.error(error);
         res.status(500).send({
             error: "Some internal server error ocurred",
             success: success,
+            authToken: "",
         });
     }
 };
