@@ -3,7 +3,7 @@ const { Hospital } = require("../Models/Hospital.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { getDistance } = require("../util/getDistance.js");
-const { getNearestHositals } = require("../util/accidentUtils.js");
+const { getNearestHospitals } = require("../util/accidentUtils.js");
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const createHospital = async (req, res) => {
@@ -150,8 +150,9 @@ const getHospitalNearest = async (req, res) => {
             return res.status(400).json({ success: success });
         }
         const { latitude, longitude } = req.body;
-        const hospitals = await getNearestHositals({ latitude, longitude });
-
+        console.log(latitude, longitude);
+        const hospitals = await getNearestHospitals({ latitude, longitude });
+        console.log(hospitals);
         res.status(200).json(hospitals);
     } catch (error) {
         console.error("Get Hospital Nearest Error", error);

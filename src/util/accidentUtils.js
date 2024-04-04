@@ -8,7 +8,7 @@ const getNearestHospitals = async (accidentLocation) => {
     const hospitals = await Hospital.find({
         latitude: { $gte: latitude - 0.45, $lte: latitude + 0.45 },
         longitude: { $gte: longitude - 0.45, $lte: longitude + 0.45 },
-    }).select("-password");
+    },{password:0,__v:0});
 
     hospitals.sort((a, b) => {
         const aDistance = getDistance(
