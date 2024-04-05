@@ -102,7 +102,7 @@ const getUserInfo = async (req, res) => {
         const user = await User.findById(req.user.id,{
             _id:0,
             password:0,
-            _v:0
+            __v:0
         });
         if (!user) {
             return res.status(400).send({ error: "No user found" });
