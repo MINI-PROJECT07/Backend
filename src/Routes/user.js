@@ -6,7 +6,7 @@ const {fetchUser} = require("../Middlewares/fetchUser")
 
 router.post("/createUser",createUserValidator,createUser);
 router.post("/login",loginUserValidator,loginUser);
-router.post("/getUserInfo",fetchUser,getUserInfo);
+router.get("/getUserInfo",fetchUser,getUserInfo);
 router.put("/updateUser",fetchUser,updateUser)
 
 module.exports = router;
