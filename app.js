@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const connectDB = require("./db");
 const http = require("http");
-const { init } = require("./Socket");
+const { init, getIO } = require("./Socket");
 
 require("dotenv").config();
 
@@ -24,6 +24,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/demo", (req, res) => {
+    // getIO().emit("accident","New Accident")
     res.send({ message: "It's working .", id: 1 });
 });
 
