@@ -1,10 +1,11 @@
 const { validationResult } = require("express-validator");
 const { Accident } = require("../Models/Accident.js");
 const { Hospital } = require("../Models/Hospital.js");
-const { NotificationH } = require("../Models/NotificationH.js");
 const { User } = require("../Models/User.js");
 const { getDistance } = require("../util/getDistance.js");
 const { sendNotificationToNearestHospital } = require("../util/notificationUtils.js");
+const NotificationH = require("../Models/NotificationH.js");
+const { getIO } = require("../../Socket.js");
 
 const createAccident = async (req, res) => {
     try{
@@ -32,6 +33,7 @@ const createAccident = async (req, res) => {
         });
         await newAccident.save();
         await sendNotificationToNearestHospital(newAccident);
+        getIO().emit("accident","new accident")
         success = true;
         res.status(200).json({ success: success, error:"",message:"Accident Created Successfully"});
     }catch(error){
@@ -84,6 +86,27 @@ const getAccidentsNearest = async (req, res) => {
     }
 }
 
+const getAccidentsNearestAuto = async (req, res) => {
+    try{
+        const hospitalId = req.hospital.id;
+        const hospital = await Hospital.findById(hospitalId);
+        if(!hospital){
+            return res.status(400).json({ success: false,error:"Hospital not found",message:""});
+        }
+        const notifications = await NotificationH.find({hospital:hospitalId,status:"pending"});
+        let nearestAccidents = [];
+        for(let i=0;i<notifications.length;i++){
+            let notification = notifications[i];
+            let accident = await Accident.findById(notification.accident);
+            nearestAccidents.push(accident);
+        }
+        return res.send({accidents:nearestAccidents,success:true,error:""})
+    }catch(error){
+        console.error("Get Nearest Accident Auto Error", error);
+        res.status(500).send({ error: "Some internal server error ocurred", success: false,message:""});
+    }
+}
+
 const getAccidentInfo = (req, res) => {
     try{
         let success = false;
@@ -127,4 +150,5 @@ module.exports = {
     updateAccident,
     resolveAccident,
     takeAccident,
+    getAccidentsNearestAuto,
 }

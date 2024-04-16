@@ -6,7 +6,7 @@ const sendNotificationToNearestHospital = async (accident) => {
         latitude: accident.latitude,
         longitude: accident.longitude,
     });
-
+    const ids = [];
     for (let i = 0; i < hospitals.length; i++) {
         const notification = new NotificationH({
             hospital: hospitals[i]._id,
@@ -15,6 +15,7 @@ const sendNotificationToNearestHospital = async (accident) => {
         });
         const res = await notification.save();
     }
+
 };
 
 module.exports = { sendNotificationToNearestHospital };
