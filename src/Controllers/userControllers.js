@@ -116,7 +116,8 @@ const getUserInfo = async (req, res) => {
 
 const getUserInfoHospital = async (req, res) => {
     try {
-        const user = await User.findById(req.hospital.id,{
+        const userid = req.params.id;
+        const user = await User.findById(userid,{
             _id:0,
             password:0,
             __v:0
