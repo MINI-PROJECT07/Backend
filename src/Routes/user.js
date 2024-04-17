@@ -8,7 +8,7 @@ const fetchHospital = require("../Middlewares/fetchHospital");
 router.post("/createUser",createUserValidator,createUser);
 router.post("/login",loginUserValidator,loginUser);
 router.get("/getUserInfo",fetchUser,getUserInfo);
-router.get("/getUserInfoHospital",fetchHospital,getUserInfoHospital);
+router.get("/getUserInfoHospital/:id",fetchHospital,getUserInfoHospital);
 router.put("/updateUser",fetchUser,updateUser)
 
 module.exports = router;
