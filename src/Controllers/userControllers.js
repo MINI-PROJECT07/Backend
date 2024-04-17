@@ -114,6 +114,23 @@ const getUserInfo = async (req, res) => {
     }
 };
 
+const getUserInfoHospital = async (req, res) => {
+    try {
+        const user = await User.findById(req.hospital.id,{
+            _id:0,
+            password:0,
+            __v:0
+        });
+        if (!user) {
+            return res.status(400).send({ error: "No user found" });
+        }
+        res.status(200).send(user);
+    } catch (error) {
+        console.error("Get User Info Error", error);
+        res.status(500).send({ error: "Some internal server error ocurred" });
+    }
+
+}
 const updateUser = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
@@ -147,4 +164,4 @@ const updateUser = async (req, res) => {
         res.status(500).send({ error: "Some internal server error occurred" });
     }
 };
-module.exports = { createUser, loginUser, getUserInfo,updateUser };
+module.exports = { createUser, loginUser, getUserInfo,updateUser,getUserInfoHospital };
