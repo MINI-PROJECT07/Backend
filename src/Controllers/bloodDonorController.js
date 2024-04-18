@@ -55,7 +55,7 @@ const getBloodDonorsNearest = async (req, res) => {
                     $maxDistance: 30000
                 }
             }
-        });
+        },{_id:0, __v:0});
 
         res.status(200).json(bloodDonors);
     } catch (error) {
