@@ -1,5 +1,6 @@
 const { BloodDonor } = require("../Models/BloodDonor.js");
 const { validationResult } = require("express-validator");
+const { getDistance } = require("../util/getDistance.js");
 
 const createBloodDonor = async (req, res) => {
     try {
@@ -46,14 +47,9 @@ const getBloodDonorsNearest = async (req, res) => {
     try {
         const { latitude, longitude } = req.body;
         const bloodDonors = await BloodDonor.find({
-            permanantLocation: {
-                $near: {
-                    $geometry: {
-                        type: "Point",
-                        coordinates: [longitude, latitude]
-                    },
-                    $maxDistance: 30000
-                }
+            permanantLocation:{
+                latitude: { $gte: latitude - 0.45, $lte: latitude + 0.45 },
+                longitude: { $gte: longitude - 0.45, $lte: longitude + 0.45 },
             }
         },{_id:0, __v:0});
 
