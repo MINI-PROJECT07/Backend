@@ -12,7 +12,8 @@ const createBloodDonor = async (req, res) => {
             return res.status(400).json({ success: success });
         }
 
-        const { name, phoneNo, bloodGroup, age, permanantLocation, address } = req.body;
+        const { name, phoneNo, bloodGroup, age, permanantLocation, address } =
+            req.body;
         const user = req.user.id;
 
         const newBloodDonor = new BloodDonor({
@@ -23,12 +24,16 @@ const createBloodDonor = async (req, res) => {
             age,
             permanantLocation,
             address,
-        })
+        });
         await newBloodDonor.save();
         success = true;
-        res.status(200).json({ success: success,message:"",error:"" });
+        res.status(200).json({ success: success, message: "", error: "" });
     } catch (error) {
-        res.status(500).json({ success: false, error: error, message: "Internal Server Error"});
+        res.status(500).json({
+            success: false,
+            error: error,
+            message: "Internal Server Error",
+        });
         console.error("Create Blood Donor Error", error);
     }
 };
@@ -41,24 +46,41 @@ const getBloodDonors = async (req, res) => {
         res.status(500).json({ error: error });
         console.error("Get Blood Donors Error", error);
     }
-}
+};
 
 const getBloodDonorsNearest = async (req, res) => {
     try {
         const { latitude, longitude } = req.body;
-        const bloodDonors = await BloodDonor.find({
-            permanantLocation:{
-                latitude: { $gte: latitude - 0.45, $lte: latitude + 0.45 },
-                longitude: { $gte: longitude - 0.45, $lte: longitude + 0.45 },
-            }
-        },{_id:0, __v:0});
+        const bloodDonors = await BloodDonor.find(
+            {},
+            { _id: 0, __v: 0, date: 0 }
+        );
+
+        bloodDonors.filter((bloodDonor) => {
+            bloodDonor.distance = getDistance(
+                bloodDonor.permanantLocation.latitude,
+                bloodDonor.permanantLocation.longitude,
+                latitude,
+                longitude
+            );
+            if (bloodDonor.distance < 30) return true;
+            return false;
+        });
+
+        for (let i = 0; i < bloodDonors.length; i++) {
+            bloodDonors[i].latitude = bloodDonors[i].permanantLocation.latitude;
+            bloodDonors[i].longitude =
+                bloodDonors[i].permanantLocation.longitude;
+        }
+
+        console.log(bloodDonors);
 
         res.status(200).json(bloodDonors);
     } catch (error) {
         res.status(500).json({ error: error });
         console.error("Get Blood Donors Nearest Error", error);
     }
-}
+};
 
 const getBloodDonorInfo = async (req, res) => {
     try {
@@ -69,27 +91,34 @@ const getBloodDonorInfo = async (req, res) => {
         res.status(500).json({ error: error });
         console.error("Get Blood Donor Info Error", error);
     }
-}
+};
 
 const updateBloodDonor = async (req, res) => {
     try {
-        const { id, name, phoneNo, bloodGroup, age, permanantLocation, address } = req.body;
+        const {
+            id,
+            name,
+            phoneNo,
+            bloodGroup,
+            age,
+            permanantLocation,
+            address,
+        } = req.body;
         const bloodDonor = await BloodDonor.findById(id);
-        if(name) bloodDonor.name = name;
-        if(phoneNo) bloodDonor.phoneNo = phoneNo;
-        if(bloodGroup) bloodDonor.bloodGroup = bloodGroup;
-        if(age) bloodDonor.age = age;
-        if(permanantLocation) bloodDonor.permanantLocation = permanantLocation;
-        if(address) bloodDonor.address = address;
+        if (name) bloodDonor.name = name;
+        if (phoneNo) bloodDonor.phoneNo = phoneNo;
+        if (bloodGroup) bloodDonor.bloodGroup = bloodGroup;
+        if (age) bloodDonor.age = age;
+        if (permanantLocation) bloodDonor.permanantLocation = permanantLocation;
+        if (address) bloodDonor.address = address;
 
         await bloodDonor.save();
         res.status(200).json({ message: "Blood Donor Updated Successfully" });
     } catch (error) {
         res.status(500).json({ error: error });
         console.error("Update Blood Donor Error", error);
-    
     }
-}
+};
 
 const deleteBloodDonor = async (req, res) => {
     try {
@@ -100,5 +129,12 @@ const deleteBloodDonor = async (req, res) => {
         res.status(500).json({ error: error });
         console.error("Delete Blood Donor Error", error);
     }
-}
-module.exports = { createBloodDonor, getBloodDonors, getBloodDonorsNearest, getBloodDonorInfo, updateBloodDonor, deleteBloodDonor};
+};
+module.exports = {
+    createBloodDonor,
+    getBloodDonors,
+    getBloodDonorsNearest,
+    getBloodDonorInfo,
+    updateBloodDonor,
+    deleteBloodDonor,
+};
