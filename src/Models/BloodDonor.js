@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-const { add } = require("nodemon/lib/rules")
 const { Schema } = mongoose
 
 const BloodDonorSchema = new Schema({
